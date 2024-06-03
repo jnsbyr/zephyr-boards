@@ -1,0 +1,7 @@
+# Super Mini NRF52840 XS Kconfig.board
+# Copyright (c) 2024 JensB
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_SUPERMINI_XS_NRF52840
+	bool "Super Mini NRF52840 XS"
+	depends on SOC_NRF52840_QIAA

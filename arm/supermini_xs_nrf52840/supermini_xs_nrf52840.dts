@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2024 JensB
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include "supermini_xs_nrf52840_common.dtsi"
+
+/ {
+	model = "Super Mini NRF52840 XS";
+	compatible = "supermini_xs_nrf52840";
+};

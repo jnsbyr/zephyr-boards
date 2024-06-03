@@ -1,0 +1,34 @@
+# Super Mini NRF52840 XS board Kconfig.defconfig
+# Copyright (c) 2024 JensB
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_SUPERMINI_XS_NRF52840
+
+config BOARD
+	default "supermini_xs_nrf52840"
+
+config BT_CTLR
+	default BT
+
+config BOARD_ENABLE_DCDC
+	bool "DCDC mode"
+	select SOC_DCDC_NRF52X
+	default y
+
+config BOARD_ENABLE_DCDC_HV
+	bool "High Voltage DCDC converter"
+	select SOC_DCDC_NRF52X_HV
+	default y
+
+endif # BOARD_SUPERMINI_XS_NRF52840
+
+
+if USB_DEVICE_STACK
+
+config UART_CONSOLE
+	default CONSOLE
+
+config USB_DEVICE_INITIALIZE_AT_BOOT
+	default y
+
+endif # USB_DEVICE_STACK

@@ -1,0 +1,173 @@
+/*
+ * Copyright (c) 2024 JensB
+ * Copyright (c) 2020 Jefferson Lee
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <nordic/nrf52840_qiaa.dtsi>
+#include "supermini_xs_nrf52840_pinctrl.dtsi"
+#include "supermini_xs_nrf52840_connector.dtsi"
+
+/ {
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,bt-mon-uart = &uart0;
+		zephyr,bt-c2h-uart = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &code_partition;
+		zephyr,ieee802154 = &ieee802154;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			/* Cannot be used together with SPI2. */
+			gpios = <&qzntec_smxs_header 13 0>;
+			label = "Yellow LED";
+		};
+		led1: led_1 {
+			gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+			label = "Red LED";
+		};
+	};
+
+	pwmleds {
+		compatible = "pwm-leds";
+		red_pwm_led: led_pwm_1 {
+			pwms = <&pwm1 0 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+			label = "Red PWM LED";
+		};
+	};
+
+	pwmleds2 {
+		compatible = "pwm-leds";
+		/* Cannot be used together with SPI2. */
+		status = "disabled";
+		yellow_pwm_led: led_pwm_0 {
+			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+			label = "Yellow PWM LED";
+		};
+	};
+
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		pwm-led0 = &yellow_pwm_led;
+		pwm-led1 = &red_pwm_led;
+		red-pwm-led = &red_pwm_led;
+		bootloader-led0 = &led0;
+		mcuboot-led0 = &led0;
+		spi = &spi2;
+		watchdog0 = &wdt0;
+	};
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "sam-ba";
+			reg = <0x00000000 0x0000ffff>;
+			read-only;
+		};
+
+		code_partition: partition@10000 {
+			label = "code";
+			reg = <0x00010000 0x000e8000>;
+			read-only;
+		};
+
+		/*
+		 * The flash starting at 0x000f8000 and ending at
+		 * 0x000fffff is reserved for use by the application.
+		 *
+		 * Storage partition will be used by FCB/LittleFS/NVS
+		 * if enabled.
+		 */
+		 storage_partition: partition@f8000 {
+			label = "storage";
+			reg = <0x000f8000 0x000fffff>;
+		};
+	};
+};
+
+&adc {
+	status = "okay";
+};
+
+&uart0 {
+	compatible = "nordic,nrf-uarte";
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&i2c1 {
+	compatible = "nordic,nrf-twi";
+	/* Cannot be used together with SPI1. */
+	status = "okay";
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-1 = <&i2c1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&spi2 {
+	compatible = "nordic,nrf-spi";
+	/* SPI2 is used because SPI1/0 conflicts with I2C1/0. */
+	status = "okay";
+	pinctrl-0 = <&spi2_default>;
+	pinctrl-1 = <&spi2_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&uicr {
+	gpio-as-nreset;
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&pwm0 {
+	/* Cannot be used together with SPI2 because of conflict on P0.13. */
+	status = "disabled";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&pwm1 {
+	status = "okay";
+	pinctrl-0 = <&pwm1_default>;
+	pinctrl-1 = <&pwm1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+	usb_cdc_acm_uart: cdc-acm-uart {
+		compatible = "zephyr,cdc-acm-uart";
+	};
+};
+
+&ieee802154 {
+	status = "okay";
+};
